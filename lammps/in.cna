@@ -1,0 +1,21 @@
+# Usage
+# lmp -in in.cna \
+#     -var temp 300 \  # Target Temperature in K
+#     -var pfile Ni.eam.alloy \ # Potential file
+
+log		log.cna${temp}K
+
+units		metal
+atom_style	atomic
+
+read_data	data.${temp}K
+
+pair_style	eam/alloy
+pair_coeff	* * ${pfile} Ni Al
+
+compute		cna all cna/atom 3.00451
+
+dump 		1 all yaml 1 cna${temp}K.yaml id type x y z c_cna
+dump_modify 	1 sort id
+
+run		0

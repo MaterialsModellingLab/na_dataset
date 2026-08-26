@@ -1,0 +1,39 @@
+# Usage:
+# lmp -i in.ni \
+#   -v rfile    # Restart file to continue from \
+#   -v temp     # Target temperature to stabilize the phase \
+#   -v pfile    # Potential file for Ni
+
+# Pure Ni
+
+log		log.${temp}K
+
+units		metal
+atom_style	atomic
+
+read_restart	${rfile}
+
+pair_style	eam/alloy
+pair_coeff	* * ${pfile} Ni Al
+
+
+
+thermo		100
+thermo_style	custom step time temp pe ke etotal press vol
+thermo_modify	line yaml format none
+
+variable	dt equal 0.001
+timestep	${dt}
+variable	tdamp equal 100*${dt}
+variable	pdamp equal 10*${tdamp}
+
+dump		1 all atom 100 dump.${temp}K
+
+fix		nvt2 all nvt temp ${temp} ${temp} ${tdamp}
+run		5000
+
+unfix		nvt2
+
+fix		npt1 all npt temp ${temp} ${temp} ${tdamp} iso 0.0 0.0 ${pdamp}
+run		100000
+write_data	data.${temp}K

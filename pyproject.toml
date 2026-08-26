@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "na_dataset"
+dynamic = ["version"]
+description = "The neighbor atoms dataset"
+readme = "README.md"
+requires-python = ">=3.10, <3.13"
+dependencies = [
+    "absl-py>=1.0.0",
+    "apache-beam",
+    "dill",
+    "importlib_resources",
+    "kaleido",
+    "mlcroissant",
+    "numpy",
+    "pandas",
+    "pathlib",
+    "plotly",
+    "pyarrow",
+    "pyyaml",
+    "tensorflow",
+    "tensorflow-datasets",
+]
+
+[project.optional-dependencies]
+build = [
+    "arbol_kd @ git+https://github.com/MaterialsModellingLab/arbol-kd.git@main",
+    "lammps_io @ git+https://github.com/MaterialsModellingLab/lammps-io.git@main",
+]
+test = ["pytest", "pytest-cov"]
+
+[tool.setuptools]
+include-package-data = true
+packages = ["na_dataset_util"]
+package-dir = { "" = "src" }
+
+[tool.setuptools_scm]
+version_scheme = "post-release"
+local_scheme = "node-and-date"
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+extend-select = ["B", "I", "PGH", "RUF", "UP"]

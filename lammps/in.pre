@@ -1,0 +1,40 @@
+# Usage:
+# lmp -i in.ni \
+#   -v temp     # Target temperature to preprocess the phase \
+#   -v pfile    # Potential file for Ni
+
+# Pure Ni
+
+log		log.pre${temp}K
+
+units		metal
+boundary	p p p
+
+atom_style	atomic
+
+lattice		fcc 3.52
+region		box block 0 50 0 50 0 50
+create_box	2 box
+create_atoms	1 box
+
+pair_style	eam/alloy
+pair_coeff	* * ${pfile} Ni Al
+
+thermo		100
+thermo_style	custom step time temp pe ke etotal press vol
+thermo_modify	line yaml format none
+
+variable	dt equal 0.001
+timestep	${dt}
+variable	tdamp equal 100*${dt}
+
+dump		1 all atom 100 dump.pre${temp}K
+
+velocity	all create ${temp} 1
+
+fix		nvt1 all nvt temp ${temp} ${temp} ${tdamp}
+run		5000
+unfix		nvt1
+
+# Save as restart file
+write_restart	restart.pre${temp}K

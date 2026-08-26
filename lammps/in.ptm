@@ -1,0 +1,21 @@
+# Usage
+# lmp -in in.ptm \
+#     -var temp 300 \  # Target Temperature in K
+#     -var pfile Ni.eam.alloy \ # Potential file
+
+log		log.ptm${temp}K
+
+units		metal
+atom_style	atomic
+
+read_data	data.${temp}K
+
+pair_style	eam/alloy
+pair_coeff	* * ${pfile} Ni Al
+
+compute		ptm all ptm/atom default 0.16
+
+dump 		1 all yaml 1 ptm${temp}K.yaml id type x y z c_ptm[1]
+dump_modify 	1 sort id
+
+run		0

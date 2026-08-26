@@ -1,0 +1,26 @@
+# Usage:
+# lmp -i in.ni \
+#   -v temp     # Target temperature to stabilize the phase \
+#   -v pfile    # Potential file for Ni \
+#   -v skin     # Skin distance for neighbor list \
+#   -v nbin    # Number of bins for RDF calculation \
+#   -v cutoff   # Cutoff distance for RDF calculation
+
+log		log.rdf${temp}K
+
+units		metal
+atom_style	atomic
+
+read_data	data.${temp}K
+
+pair_style	eam/alloy
+pair_coeff	* * ${pfile} Ni Al
+
+variable	cutoff_with_skin equal ${cutoff}+${skin}
+
+comm_modify	cutoff ${cutoff_with_skin}
+compute		rdf all rdf ${nbin} cutoff ${cutoff}
+
+fix		rdf_fix all ave/time 1 1 1 c_rdf[*] file rdf${temp}K.txt mode vector
+
+run		0
